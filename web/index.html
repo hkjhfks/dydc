@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Douyin Archive 控制台</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="ambient ambient-a"></div>
+    <div class="ambient ambient-b"></div>
+
+    <main class="app-shell">
+      <header class="hero">
+        <p class="eyebrow">Douyin Archive</p>
+        <h1>作者管理控制台</h1>
+        <p class="subtitle">新增作者后会立即触发一次下载上传，并由后台持续监控。</p>
+        <p class="status" id="statusText">准备就绪</p>
+      </header>
+
+      <section class="panel panel-monitor fade-up">
+        <div class="monitor-header">
+          <h2>后台任务状态</h2>
+          <button id="runNowBtn" class="ghost" type="button">立即执行一轮</button>
+        </div>
+        <p id="monitorMain" class="monitor-main">初始化中...</p>
+        <p id="monitorSub" class="monitor-sub">等待状态数据</p>
+      </section>
+
+      <section class="panel panel-form fade-up">
+        <h2>新增作者</h2>
+        <form id="authorForm" autocomplete="off">
+          <label>
+            抖音主页链接
+            <input id="profileUrl" name="profile_url" placeholder="https://www.douyin.com/user/..." required />
+          </label>
+          <label>
+            抖音号
+            <input id="douyinId" name="douyin_id" placeholder="例如: xiaoming" required />
+          </label>
+          <label>
+            名字
+            <input id="authorName" name="name" placeholder="例如: 小明" required />
+          </label>
+          <button id="submitBtn" type="submit">添加或更新作者</button>
+        </form>
+      </section>
+
+      <section class="panel panel-list fade-up delay-1">
+        <div class="list-header">
+          <h2>当前作者列表</h2>
+          <button id="refreshBtn" class="ghost" type="button">刷新</button>
+        </div>
+
+        <ul id="authorList" class="author-list"></ul>
+        <p id="emptyHint" class="empty hidden">暂无作者，请先添加。</p>
+      </section>
+    </main>
+
+    <template id="authorItemTemplate">
+      <li class="author-item">
+        <div class="author-main">
+          <p class="name"></p>
+          <p class="meta"></p>
+          <a class="profile" target="_blank" rel="noreferrer"></a>
+        </div>
+        <button class="danger" type="button">删除</button>
+      </li>
+    </template>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

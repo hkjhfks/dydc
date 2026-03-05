@@ -1,0 +1,25 @@
+data_dir: data
+downloader:
+  douyin_downloader_dir: .tools/douyin-downloader
+  cookies_file: secrets/douyin_cookies.yml
+  thread: 5
+  retry_times: 3
+  progress:
+    quiet_logs: true
+  browser_fallback:
+    enabled: true
+    headless: false
+    max_scrolls: 240
+    idle_rounds: 8
+    wait_timeout_seconds: 600
+storage:
+  rclone_remote: gdrive
+  base_dir: DouyinArchive
+wecom:
+  webhook_url: ''
+  push_on_first_sync: false
+  max_list_items: 20
+authors:
+- douyin_id: 煜儿
+  name: '67834972826'
+  profile_url: https://www.douyin.com/user/MS4wLjABAAAADq7OuEsO4x3cKB7rkRk6pCMFGJHkeQvnZ6Qj8cGdcYeF4Z-V2GvKcctVDBXHgN2F

@@ -1,0 +1,54 @@
+# 复制为 pipeline.yml 后修改
+
+data_dir: data
+
+downloader:
+  # 把 douyin-downloader 仓库克隆到这个目录:
+  #   git clone https://github.com/jiji262/douyin-downloader .tools/douyin-downloader
+  douyin_downloader_dir: .tools/douyin-downloader
+
+  # 建议把 cookie 放在不入库的 secrets 文件里（见下方示例）
+  cookies_file: secrets/douyin_cookies.yml
+
+  thread: 5
+  retry_times: 3
+
+  progress:
+    quiet_logs: true
+
+  # 翻页风控兜底：默认会打开浏览器，需要人工过验证
+  browser_fallback:
+    enabled: true
+    headless: false
+    max_scrolls: 240
+    idle_rounds: 8
+    wait_timeout_seconds: 600
+
+storage:
+  # rclone remote 名称（你本机 rclone config 里配置的）
+  rclone_remote: gdrive
+  # Google Drive 根目录下的总文件夹
+  base_dir: DouyinArchive
+
+wecom:
+  # 企业微信群机器人 webhook
+  webhook_url: ""
+  # 新增作者首次同步默认只发摘要（避免刷屏）
+  push_on_first_sync: false
+  # 非首次同步时，单条消息最多列出多少个作品链接
+  max_list_items: 20
+
+authors:
+  # 也可以先留空，然后通过 `python3 -m pipeline --web` 在前端维护作者
+  - douyin_id: "exampleid"
+    name: "示例作者"
+    # 主页链接（推荐直接填 /user/{sec_uid} 这种）
+    profile_url: "https://www.douyin.com/user/MS4wLjABAAAAxxxx"
+
+# secrets/douyin_cookies.yml 示例（不要提交到仓库）:
+# cookies:
+#   msToken: ""
+#   ttwid: ""
+#   odin_tt: ""
+#   passport_csrf_token: ""
+#   sid_guard: ""
