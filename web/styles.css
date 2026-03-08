@@ -227,6 +227,7 @@ button:active {
 
 .author-main {
   min-width: 0;
+  flex: 1;
 }
 
 .author-main .name {
@@ -326,8 +327,13 @@ button:active {
   }
 
   .author-item {
+    min-width: 0;
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .author-main {
+    width: 100%;
   }
 
   .danger {
@@ -335,6 +341,11 @@ button:active {
   }
 
   .author-main .profile {
+    display: block;
     max-width: 100%;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
   }
 }
