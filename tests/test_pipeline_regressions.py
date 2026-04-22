@@ -23,6 +23,13 @@ from pipeline.config import (
     sanitize_component,
 )
 from pipeline.douyin_downloader import VideoItem, _parse_video_dir_name
+from pipeline.profile_resolver import (
+    ProfileResolveError,
+    _extract_first_url,
+    _extract_sec_uid,
+    _pick_douyin_id,
+    resolve_author_profile,
+)
 from pipeline.runner import RunContext, run_once
 from pipeline.runner import doctor, main
 from pipeline.web_server import MonitorScheduler
@@ -38,6 +45,69 @@ class ParsingRegressionTests(unittest.TestCase):
 
     def test_sanitize_component_normalizes_spaces_and_trailing_dots(self) -> None:
         self.assertEqual(sanitize_component("  a   b...  "), "a b")
+
+    def test_extract_first_url_supports_share_text(self) -> None:
+        text = "7.82 复制此链接，打开抖音搜索，直接观看视频 https://v.douyin.com/abc123/ "
+        self.assertEqual(_extract_first_url(text), "https://v.douyin.com/abc123/")
+
+    def test_extract_sec_uid_reads_user_path(self) -> None:
+        self.assertEqual(
+            _extract_sec_uid("https://www.douyin.com/user/MS4wLjABAAAAxyz?from_tab_name=main"),
+            "MS4wLjABAAAAxyz",
+        )
+
+    def test_pick_douyin_id_prefers_unique_id(self) -> None:
+        douyin_id, is_fallback = _pick_douyin_id(
+            {"unique_id": "tester001", "short_id": "123"},
+            sec_uid="sec_uid_x",
+        )
+        self.assertEqual(douyin_id, "tester001")
+        self.assertFalse(is_fallback)
+
+    def test_pick_douyin_id_falls_back_to_sec_uid(self) -> None:
+        douyin_id, is_fallback = _pick_douyin_id({}, sec_uid="sec_uid_x")
+        self.assertEqual(douyin_id, "sec_uid_x")
+        self.assertTrue(is_fallback)
+
+
+class ProfileResolverTests(unittest.TestCase):
+    def test_resolve_author_profile_uses_fetched_user_info(self) -> None:
+        with (
+            patch(
+                "pipeline.profile_resolver._resolve_profile_url",
+                return_value="https://www.douyin.com/user/sec_uid_x",
+            ),
+            patch(
+                "pipeline.profile_resolver._fetch_user_info",
+                return_value={"nickname": "测试作者", "unique_id": "tester001"},
+            ),
+        ):
+            result = resolve_author_profile(
+                "https://v.douyin.com/abc123/",
+                downloader_dir=Path("/tmp/downloader"),
+                cookies={},
+            )
+
+        self.assertEqual(result.profile_url, "https://www.douyin.com/user/sec_uid_x")
+        self.assertEqual(result.sec_uid, "sec_uid_x")
+        self.assertEqual(result.name, "测试作者")
+        self.assertEqual(result.douyin_id, "tester001")
+        self.assertFalse(result.douyin_id_is_fallback)
+
+    def test_resolve_author_profile_requires_name(self) -> None:
+        with (
+            patch(
+                "pipeline.profile_resolver._resolve_profile_url",
+                return_value="https://www.douyin.com/user/sec_uid_x",
+            ),
+            patch("pipeline.profile_resolver._fetch_user_info", return_value={}),
+            self.assertRaises(ProfileResolveError),
+        ):
+            _ = resolve_author_profile(
+                "https://www.douyin.com/user/sec_uid_x",
+                downloader_dir=Path("/tmp/downloader"),
+                cookies={},
+            )
 
 
 class ConfigBoolParsingTests(unittest.TestCase):

@@ -32,7 +32,11 @@
         <form id="authorForm" autocomplete="off">
           <label>
             抖音主页链接
-            <input id="profileUrl" name="profile_url" placeholder="https://www.douyin.com/user/..." required />
+            <div class="field-row">
+              <input id="profileUrl" name="profile_url" placeholder="https://www.douyin.com/user/... 或分享链接" required />
+              <button id="resolveProfileBtn" class="ghost" type="button">自动获取</button>
+            </div>
+            <span class="field-hint">支持直接粘贴作者主页链接或分享链接，自动回填后仍可手动修改。</span>
           </label>
           <label>
             抖音号

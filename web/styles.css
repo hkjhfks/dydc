@@ -141,6 +141,30 @@ label {
   font-size: 14px;
 }
 
+.field-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.field-row input {
+  flex: 1;
+}
+
+.field-row button {
+  margin-top: 8px;
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.field-hint {
+  display: block;
+  margin-top: 8px;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 input {
   width: 100%;
   margin-top: 8px;
@@ -337,6 +361,16 @@ button:active {
   }
 
   .danger {
+    width: 100%;
+  }
+
+  .field-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .field-row button {
+    margin-top: 0;
     width: 100%;
   }
 

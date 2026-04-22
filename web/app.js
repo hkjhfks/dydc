@@ -1,5 +1,9 @@
 const statusText = document.getElementById("statusText");
 const form = document.getElementById("authorForm");
+const profileUrlInput = document.getElementById("profileUrl");
+const douyinIdInput = document.getElementById("douyinId");
+const authorNameInput = document.getElementById("authorName");
+const resolveProfileBtn = document.getElementById("resolveProfileBtn");
 const submitBtn = document.getElementById("submitBtn");
 const refreshBtn = document.getElementById("refreshBtn");
 const runNowBtn = document.getElementById("runNowBtn");
@@ -196,6 +200,39 @@ form.addEventListener("submit", async (e) => {
     setStatus(err.message, "error");
   } finally {
     submitBtn.disabled = false;
+  }
+});
+
+resolveProfileBtn.addEventListener("click", async () => {
+  const profileUrl = profileUrlInput.value.trim();
+  if (!profileUrl) {
+    setStatus("请先填写抖音主页链接。", "error");
+    profileUrlInput.focus();
+    return;
+  }
+
+  try {
+    resolveProfileBtn.disabled = true;
+    setStatus("正在自动获取作者信息...");
+    const data = await api("/api/authors/resolve-profile", {
+      method: "POST",
+      body: JSON.stringify({ profile_url: profileUrl }),
+    });
+    const item = data.item || {};
+    profileUrlInput.value = item.profile_url || profileUrl;
+    douyinIdInput.value = item.douyin_id || "";
+    authorNameInput.value = item.name || "";
+
+    setStatus(
+      item.douyin_id_is_fallback
+        ? "已自动填入作者昵称，未识别到公开抖音号，已先回填 sec_uid，可继续手动修改。"
+        : "已自动获取作者信息，可直接提交或继续修改。",
+      "success"
+    );
+  } catch (err) {
+    setStatus(err.message, "error");
+  } finally {
+    resolveProfileBtn.disabled = false;
   }
 });
 

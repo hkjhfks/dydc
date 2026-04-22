@@ -13,6 +13,7 @@ import time
 from urllib.parse import unquote, urlparse
 
 from .config import ConfigError, add_or_update_author, list_authors, remove_author
+from .profile_resolver import ProfileResolveError, resolve_author_profile_from_config
 from .state import load_state, save_state
 
 
@@ -257,6 +258,28 @@ class _PipelineWebHandler(SimpleHTTPRequestHandler):
     def _handle_get_monitor(self) -> None:
         self._send_json(HTTPStatus.OK, {"monitor": self.scheduler.status()})
 
+    def _handle_resolve_author_profile(self) -> None:
+        try:
+            payload = self._read_json()
+            profile_url = str(payload.get("profile_url", "")).strip()
+            result = resolve_author_profile_from_config(self.config_path, profile_url)
+        except (ProfileResolveError, ValueError) as e:
+            self._send_json(HTTPStatus.BAD_REQUEST, {"error": str(e)})
+            return
+
+        self._send_json(
+            HTTPStatus.OK,
+            {
+                "item": {
+                    "douyin_id": result.douyin_id,
+                    "name": result.name,
+                    "profile_url": result.profile_url,
+                    "sec_uid": result.sec_uid,
+                    "douyin_id_is_fallback": result.douyin_id_is_fallback,
+                }
+            },
+        )
+
     def _handle_create_author(self) -> None:
         try:
             payload = self._read_json()
@@ -339,6 +362,9 @@ class _PipelineWebHandler(SimpleHTTPRequestHandler):
 
     def do_POST(self) -> None:  # noqa: N802
         parsed = urlparse(self.path)
+        if parsed.path == "/api/authors/resolve-profile":
+            self._handle_resolve_author_profile()
+            return
         if parsed.path == "/api/authors":
             self._handle_create_author()
             return
